@@ -821,13 +821,14 @@ repack_one_database(const char *orderby, char *errbuf, size_t errsize)
 		appendStringInfoString(&sql, tablespace);
 		appendStringInfoString(&sql, create_table_2);
 
-		/* Always append WITH NO DATA to CREATE TABLE SQL*/
+		/* Always append WITH NOT DATA */
 		appendStringInfoString(&sql, " WITH NO DATA");
 		table.create_table = sql.data;
-
+		
 		/* Craft Copy SQL */
 		initStringInfo(&copy_sql);
 		appendStringInfoString(&copy_sql, table.copy_data);
+
 		if (!orderby)
 
 		{
@@ -850,6 +851,7 @@ repack_one_database(const char *orderby, char *errbuf, size_t errsize)
 			appendStringInfoString(&copy_sql, " ORDER BY ");
 			appendStringInfoString(&copy_sql, orderby);
 		}
+    
 		table.copy_data = copy_sql.data;
 
 		repack_one_table(&table, orderby);
