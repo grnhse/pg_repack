@@ -40,7 +40,7 @@ Requirements
 ------------
 
 PostgreSQL versions
-    PostgreSQL 9.1, 9.2, 9.3, 9.4, 9.5, 9.6
+    PostgreSQL 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 10
 
 Disks
     Performing a full-table repack requires free disk space about twice as
@@ -410,7 +410,7 @@ pg_repack cannot reorganize temp tables.
 GiST indexes
 ^^^^^^^^^^^^
 
-pg_repack cannot reorganize tables using GiST indexes.
+pg_repack cannot cluster tables by GiST indexes.
 
 DDL commands
 ^^^^^^^^^^^^
@@ -465,6 +465,16 @@ Creating indexes concurrently comes with a few caveats, please see `the document
 
 Releases
 --------
+
+* pg_repack 1.4.2
+
+  * added PostgreSQL 10 support (issue #120)
+  * fixed error DROP INDEX CONCURRENTLY cannot run inside a transaction block
+    (issue #129)
+
+* pg_repack 1.4.1
+
+  * fixed broken ``--order-by`` option (issue #138)
 
 * pg_repack 1.4
 

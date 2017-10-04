@@ -830,6 +830,7 @@ repack_one_database(const char *orderby, char *errbuf, size_t errsize)
 		appendStringInfoString(&copy_sql, table.copy_data);
 
 		if (!orderby)
+
 		{
 			if (ckey != NULL)
 			{
@@ -850,7 +851,7 @@ repack_one_database(const char *orderby, char *errbuf, size_t errsize)
 			appendStringInfoString(&copy_sql, " ORDER BY ");
 			appendStringInfoString(&copy_sql, orderby);
 		}
-
+    
 		table.copy_data = copy_sql.data;
 
 		repack_one_table(&table, orderby);
@@ -861,6 +862,7 @@ cleanup:
 	CLEARPGRES(res);
 	disconnect();
 	termStringInfo(&sql);
+	free(params);
 	return ret;
 }
 
@@ -1780,6 +1782,12 @@ lock_exclusive(PGconn *conn, const char *relid, const char *lock_query, bool sta
 			{
 				elog(WARNING, "timed out, do not cancel conflicting backends");
 				ret = false;
+
+				/* Before exit the loop reset the transaction */
+				if (start_xact)
+					pgut_rollback(conn);
+				else
+					pgut_command(conn, "ROLLBACK TO SAVEPOINT repack_sp1", 0, NULL);
 				break;
 			}
 			else

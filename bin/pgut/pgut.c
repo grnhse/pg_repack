@@ -434,7 +434,26 @@ simple_string_list_size(SimpleStringList list)
 static char *
 prompt_for_password(void)
 {
-	return simple_prompt("Password: ", 100, false);
+	char *buf;
+#define BUFSIZE 100
+
+#if PG_VERSION_NUM < 100000
+	buf = simple_prompt("Password: ", BUFSIZE, false);
+#else
+	buf = (char *)malloc(BUFSIZE);
+	if (buf != NULL)
+		simple_prompt("Password: ", buf, BUFSIZE, false);
+#endif
+
+	if (buf == NULL)
+		ereport(FATAL,
+			(errcode_errno(),
+			 errmsg("could not allocate memory (" UINT64_FORMAT " bytes): ",
+				(uint64) BUFSIZE)));
+
+	return buf;
+
+#undef BUFSIZE
 }
 
 
@@ -1306,7 +1325,7 @@ pgut_malloc(size_t size)
 		ereport(FATAL,
 			(errcode_errno(),
 			 errmsg("could not allocate memory (" UINT64_FORMAT " bytes): ",
-				(unsigned long) size)));
+				(uint64) size)));
 	return ret;
 }
 
@@ -1319,7 +1338,7 @@ pgut_realloc(void *p, size_t size)
 		ereport(FATAL,
 			(errcode_errno(),
 			 errmsg("could not re-allocate memory (" UINT64_FORMAT " bytes): ",
-				(unsigned long) size)));
+				(uint64) size)));
 	return ret;
 }
 

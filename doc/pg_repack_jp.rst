@@ -62,7 +62,7 @@ pg_repackでは再編成する方法として次のものが選択できます�
   ------------
   
   PostgreSQL versions
-      PostgreSQL 9.1, 9.2, 9.3, 9.4, 9.5, 9.6
+      PostgreSQL 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 10
   
   Disks
       Performing a full-table repack requires free disk space about twice as
@@ -289,6 +289,7 @@ OPTIONには以下のものが指定できます。
 .. ``-I TABLE``, ``--parent-table=TABLE``
     Reorganize both the specified table(s) and its inheritors. Multiple
     table hierarchies may be reorganized by writing multiple ``-I`` switches.
+
 ``-I TABLE``, ``--parent-table=TABLE``
     指定したテーブルとその子テーブルのみを再編成します。 ``-I`` オプションを複数同時に使用することで、複数の親テーブルを指定することができます。
 
@@ -863,6 +864,22 @@ ACCESS EXCLUSIVEロックを取得します。その他のステップでは、A
 
 リリースノート
 ---------------
+.. * pg_repack 1.4.2
+..  * added PostgreSQL 10 support (issue #120)
+..  * fixed error DROP INDEX CONCURRENTLY cannot run inside a transaction block
+    (issue #129)
+
+* pg_repack 1.4.2
+  * PostgreSQL 10をサポートしました (issue #120)
+  * エラー「DROP INDEX CONCURRENTLY cannot run inside a transaction block」が発生する事象を
+    修正しました (issue #129)
+
+.. * pg_repack 1.4.1
+..   * fixed broken ``--order-by`` option (issue #138)
+
+* pg_repack 1.4.1
+     * 壊れていた ``--order-by`` オプションを修正しました (issue #138)
+
 .. * pg_repack 1.4
 ..   * added support for PostgreSQL 9.6
 ..   * use ``AFTER`` trigger to solve concurrency problems with ``INSERT

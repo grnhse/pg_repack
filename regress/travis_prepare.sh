@@ -30,6 +30,12 @@ else
     # See https://github.com/reorg/pg_repack/issues/63
     sudo sed -i "s/main[[:space:]]*$/main ${PGVER}/" \
         /etc/apt/sources.list.d/pgdg.list
+
+    if [ "$PGTESTING" != "" ]; then
+        sudo sed -i "s/trusty-pgdg/trusty-pgdg-testing/" \
+            /etc/apt/sources.list.d/pgdg.list
+    fi
+
     sudo apt-get update
     sudo apt-get install -y "libpq5=${PGVER}*" "libpq-dev=${PGVER}*"
     sudo apt-mark hold libpq5
@@ -38,9 +44,24 @@ fi
 
 # Go somewhere else or sudo will fail
 cd /
+
 # Already started because of installing posgresql-$PGVER
 # sudo -u postgres "$PGBIN/pg_ctl" -w -l /dev/null -D "$CONFDIR" start
 sudo -u postgres mkdir -p /var/lib/postgresql/testts
 sudo -u postgres "$PGBIN/psql" \
     -c "create tablespace testts location '/var/lib/postgresql/testts'"
+
+# If the database was not provided by Travis it needs some customization
+if [ "$PGTESTING" != "" ]; then
+
+    # Allow local connections with no password
+    sudo sed -i \
+        's/\(^local[[:space:]]\+all[[:space:]]\+all[[:space:]]\+\).*/\1trust/' \
+        "$CONFDIR/pg_hba.conf"
+    sudo -u postgres "$PGBIN/pg_ctl" -D "$DATADIR" reload
+
+    sudo -u postgres "$PGBIN/psql" -c "create user travis superuser"
+fi
+
+# Go back to the build dir
 cd -
